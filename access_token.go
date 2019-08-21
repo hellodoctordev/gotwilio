@@ -39,6 +39,18 @@ func (g *VideoGrant) grantName() string {
 	return "video"
 }
 
+type Outgoing struct {
+	ApplicationSid	string	`json:"application_sid,omitempty"`
+}
+
+type VoiceGrant struct {
+	Outgoing Outgoing `json:"outgoing,omitempty"`
+}
+
+func (g *VoiceGrant) grantName() string {
+	return "voice"
+}
+
 // NewAccessToken creates a new Access Token which
 // can be used to authenticate Twilio Client SDKs
 // for a short period of time.
@@ -107,3 +119,4 @@ func (g *grantsClaim) MarshalJSON() ([]byte, error) {
 	}
 	return json.Marshal(data)
 }
+
