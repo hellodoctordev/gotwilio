@@ -306,11 +306,9 @@ func (twilio *Twilio) EndVideoRoom(nameOrSid string) (videoResponse *VideoRespon
 }
 
 func (twilio *Twilio) GetRoomParticipants(nameOrSid string, status string) (participantsResponse *ListRoomParticipantResponse, exception *Exception, err error){
-	twilioUrl := twilio.VideoUrl + "/v1/Rooms/" + nameOrSid + "/Participants"
-	formValues := url.Values{}
-	formValues.Set("Status", fmt.Sprintf("%s", status))
+	twilioUrl := twilio.VideoUrl + "/v1/Rooms/" + nameOrSid + "/Participants?status=" + status
 
-	res, err := twilio.post(formValues, twilioUrl)
+	res, err := twilio.get(twilioUrl)
 	if err != nil {
 		return participantsResponse, exception, err
 	}
