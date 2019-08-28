@@ -32,6 +32,7 @@ const (
 	InProgress VideoStatus = "in-progress"
 	Failed     VideoStatus = "failed"
 	Completed  VideoStatus = "completed"
+	Connected  VideoStatus = "connected"
 )
 
 // VideoRoomType is how the participants connect
@@ -85,6 +86,39 @@ type VideoResponse struct {
 	Type                        VideoRoomType `json:"type"`
 	UniqueName                  string        `json:"unique_name"`
 	URL                         string        `json:"url"`
+}
+
+// ListVideoResponse is returned when listing rooms
+type ListRoomParticipantResponse struct {
+	Rooms []*RoomParticipantResponse 	`json:"participants"`
+	Meta  struct {
+		Page            int64  		 	`json:"page"`
+		PageSize        int64  			`json:"page_size"`
+		FirstPageUrl    string 			`json:"first_page_url"`
+		PreviousPageUrl string 			`json:"previous_page_url"`
+		NextPageUrl     string 			`json:"next_page_url"`
+		Url             string 			`json:"url"`
+		Key             string 			`json:"key"`
+	} `json:"meta"`
+}
+
+// RoomParticipantResponse is returned for a single room
+type RoomParticipantResponse struct {
+	Status      string                   `json:"status"`
+	StartTime   string                   `json:"start_time"`
+	EndTime     string                   `json:"end_time"`
+	AccountSid  string                   `json:"account_sid"`
+	Duration    int                      `json:"duration"`
+	URL         string                   `json:"url"`
+	Sid         string                   `json:"sid"`
+	RoomSid     string                   `json:"room_sid"`
+	DateCreated time.Time                `json:"date_created"`
+	Identity    string                   `json:"identity"`
+	Links       []map[string]interface{} `json:"published_tracks"`
+}
+
+type Link struct {
+
 }
 
 type createRoomOptions struct {
@@ -269,6 +303,36 @@ func (twilio *Twilio) EndVideoRoom(nameOrSid string) (videoResponse *VideoRespon
 	videoResponse = new(VideoResponse)
 	err = json.Unmarshal(responseBody, videoResponse)
 	return videoResponse, exception, err
+}
+
+func (twilio *Twilio) GetRoomParticipants(nameOrSid string, status string) (participantsResponse *ListRoomParticipantResponse, exception *Exception, err error){
+	twilioUrl := twilio.VideoUrl + "/v1/Rooms/" + nameOrSid + "/Participants"
+	formValues := url.Values{}
+	formValues.Set("Status", fmt.Sprintf("%s", status))
+
+	res, err := twilio.post(formValues, twilioUrl)
+	if err != nil {
+		return participantsResponse, exception, err
+	}
+	defer res.Body.Close()
+
+	responseBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return participantsResponse, exception, err
+	}
+
+	if res.StatusCode < 200 || res.StatusCode > 299 {
+		exception = new(Exception)
+		err = json.Unmarshal(responseBody, exception)
+
+		// We aren't checking the error because we don't actually care.
+		// It's going to be passed to the client either way.
+		return participantsResponse, exception, err
+	}
+
+	participantsResponse = new(ListRoomParticipantResponse)
+	err = json.Unmarshal(responseBody, participantsResponse)
+	return participantsResponse, exception, err
 }
 
 func createRoomOptionsToFormValues(options *createRoomOptions) url.Values {
