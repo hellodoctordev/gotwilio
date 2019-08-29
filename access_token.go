@@ -43,6 +43,10 @@ type Outgoing struct {
 	ApplicationSid	string	`json:"application_sid,omitempty"`
 }
 
+type Incoming struct {
+	ClientName		string	`json:"client_name,omitempty"`
+}
+
 type VoiceGrant struct {
 	Outgoing Outgoing `json:"outgoing,omitempty"`
 }
