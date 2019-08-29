@@ -48,8 +48,9 @@ type Incoming struct {
 }
 
 type VoiceGrant struct {
-	Outgoing 	Outgoing `json:"outgoing,omitempty"`
-	Incoming	Incoming `json:"incoming,omitempty"`
+	Outgoing 			Outgoing	`json:"outgoing,omitempty"`
+	Incoming			Incoming	`json:"incoming,omitempty"`
+	PushCredentialSid 	string 		`json:"push_credential_sid,omitempty"`
 }
 
 func (g *VoiceGrant) grantName() string {
