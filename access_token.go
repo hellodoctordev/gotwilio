@@ -44,7 +44,7 @@ type Outgoing struct {
 }
 
 type Incoming struct {
-	ClientName		string	`json:"client_name,omitempty"`
+	Allow		bool	`json:"allow,omitempty"`
 }
 
 type VoiceGrant struct {
